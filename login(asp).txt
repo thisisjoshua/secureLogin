@@ -1,0 +1,66 @@
+<%@ LANGUAGE="VBSCRIPT" %>
+<HTML>
+<HEAD>
+<TITLE>LoginScript</TITLE>
+</HEAD>
+<BODY>
+
+<!--#include virtual="/sql/adovbs.inc"-->
+
+<%
+
+dim userName, password, query
+dim conn, rs
+
+userName = Request.Form("userName")
+password = Request.Form("password")
+
+Dim re
+Set re = New RegExp
+With re
+	.Pattern = "^[0-9a-zA-Z]"
+	.Global = True
+	.IgnoreCase = True
+End With
+
+
+
+
+query = "select UserName from users where userName= ? and userPass= ?"
+response.write query & "<P>"
+
+set conn = server.createObject("ADODB.Connection")
+set rs = server.createObject("ADODB.Recordset")
+set cmd = server.createobject("ADODB.Command")
+
+conn.Open "Provider=SQLOLEDB;server=10.4.13.133; Initial Catalog=CIS_ZZZ; User Id=stephen; Password=hayne; encrypt=true"
+
+cmd.ActiveConnection = conn
+cmd.CommandText = query
+cmd.Parameters.Append cmd.CreateParameter("@user", adVarChar, adParamInput, 50, userName)
+cmd.Parameters.Append cmd.CreateParameter("@pass", adVarchar, adParamInput, 50, password)
+ 
+'rs.activeConnection = conn
+rs.open cmd
+
+if not rs.eof then
+response.write "Logged In As: " & rs.fields(0).value
+else
+response.write "Bad Credentials"
+end if
+
+rs.close
+conn.close
+
+set rs = nothing
+set cmd = nothing
+set conn = nothing
+
+
+
+
+
+%>
+
+</BODY>
+</HTML>
